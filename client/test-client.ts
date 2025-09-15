@@ -1,37 +1,25 @@
-// Simple test for client functionality in Deno
 import { Client, AppType, Domain } from './mod.ts';
 
-// Test basic client instantiation
-try {
+if(import.meta.main){
     const client = new Client({
-        appId: 'test_app_id',
-        appSecret: 'test_app_secret',
+        appId: "cli_a78484ec95fe900b",
+        appSecret: "gthEI9TSA4WmDnCUuFeWweqEi76whocZ",
+        disableTokenCache: false,
         domain: Domain.Feishu,
-        appType: AppType.SelfBuild
+        appType: AppType.SelfBuild,
     });
 
-    console.log('✅ Client created successfully');
-    console.log('App ID:', client.appId);
-    console.log('Domain:', client.domain);
-    console.log('App Type:', client.appType);
+    try {
+        // 使用基础的 request 方法调用飞书 API
+        // 获取表格工作表信息
+        const response = await client.request({
+            method: 'GET',
+            url: `/open-apis/sheets/v3/spreadsheets/KQR3sOZZ3hv81LtJX0kclEfEnNb/sheets/iOcwZm`
+        });
 
-    // Test formatPayload method
-    const payload = await client.formatPayload(
-        {
-            data: { test: 'data' },
-            headers: { 'Custom-Header': 'value' }
-        },
-        {
-            lark: {},
-            params: { param1: 'value1' }
-        }
-    );
-
-    console.log('✅ FormatPayload works');
-    console.log('Formatted payload:', JSON.stringify(payload, null, 2));
-
-} catch (error) {
-    console.error('❌ Error testing client:', error);
+        console.log('✅ API 调用成功');
+        console.log('响应数据:', JSON.stringify(response, null, 2));
+    } catch (error) {
+        console.error('❌ API 调用失败:', error);
+    }
 }
-
-console.log('🚀 Basic client test completed!');
