@@ -1,8 +1,7 @@
-import { CTenantKey, CTenantAccessToken } from '@node-sdk/consts';
-import { Cache, AppType, Logger } from '@node-sdk/typings';
-import { assert } from '@node-sdk/utils';
-import AppTicketManager from './app-ticket-manager';
-import { HttpInstance } from '@node-sdk/typings/http';
+import { CTenantKey, CTenantAccessToken } from './consts.ts';
+import { Cache, AppType, Logger, HttpInstance } from './typings.ts';
+import { assert } from './utils.ts';
+import AppTicketManager from './app-ticket-manager.ts';
 
 interface IParams {
     appId: string;

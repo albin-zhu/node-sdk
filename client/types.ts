@@ -1,10 +1,9 @@
-import { Cache, AppType, Domain, LoggerLevel, Logger } from '@node-sdk/typings';
+import { Cache, AppType, Domain, LoggerLevel, Logger, HttpInstance } from './typings.ts';
 import {
     CTenantKey,
     CWithHelpdeskAuthorization,
     CWithUserAccessToken,
-} from '@node-sdk/consts';
-import { HttpInstance } from '@node-sdk/typings/http';
+} from './consts.ts';
 
 // 和axios保持一致
 export interface IRequestOptions {

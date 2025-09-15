@@ -1,6 +1,6 @@
-import { CUserAccessToken } from '@node-sdk/consts';
-import { mergeObject } from '@node-sdk/utils/merge-object';
-import type { Client } from './client';
+import { CUserAccessToken } from './consts.ts';
+import { mergeObject } from './utils.ts';
+import type { Client } from './client.ts';
 
 interface ITokenInfo {
   code?: string;

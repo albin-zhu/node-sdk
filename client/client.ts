@@ -1,26 +1,23 @@
-import defaultHttpInstance, { AxiosRequestConfig } from '@node-sdk/http';
-import { Cache, AppType, Domain, LoggerLevel, Logger } from '@node-sdk/typings';
+import defaultHttpInstance, { AxiosRequestConfig } from './http-client.ts';
+import { Cache, AppType, Domain, LoggerLevel, Logger, HttpInstance } from './typings.ts';
 import {
     CTenantKey,
     CWithHelpdeskAuthorization,
     CWithUserAccessToken,
-} from '@node-sdk/consts';
+} from './consts.ts';
 import {
     string2Base64,
     internalCache,
     formatDomain,
     assert,
     formatUrl,
-} from '@node-sdk/utils';
-import RequestTemplate from '@node-sdk/code-gen/client-template';
-import { defaultLogger } from '@node-sdk/logger/default-logger';
-import { LoggerProxy } from '@node-sdk/logger/logger-proxy';
-import { IRequestOptions, IClientParams, IPayload } from './types';
-import { TokenManager } from './token-manager';
-import { HttpInstance } from '@node-sdk/typings/http';
-import { UserAccessToken } from './user-access-token';
+} from './utils.ts';
+import { defaultLogger, LoggerProxy } from './logger.ts';
+import { IRequestOptions, IClientParams, IPayload } from './types.ts';
+import { TokenManager } from './token-manager.ts';
+import { UserAccessToken } from './user-access-token.ts';
 
-export class Client extends RequestTemplate {
+export class Client {
     appId: string = '';
 
     appSecret: string = '';
@@ -46,7 +43,6 @@ export class Client extends RequestTemplate {
     userAccessToken: UserAccessToken;
 
     constructor(params: IClientParams) {
-        super();
 
         this.logger = new LoggerProxy(
             params.loggerLevel || LoggerLevel.info,

@@ -1,5 +1,5 @@
-import qs from 'querystring';
-import WebSocket from 'ws';
+// import qs from 'querystring';
+// import WebSocket from 'ws';
 import { EventDispatcher } from '@node-sdk/dispatcher/event';
 import { assert, formatDomain } from '@node-sdk/utils';
 import { defaultLogger } from '@node-sdk/logger/default-logger';
@@ -117,7 +117,7 @@ export class WSClient {
       const {
         device_id,
         service_id
-      } = qs.parse(URL);
+      } = Object.fromEntries(new URLSearchParams(new URL(URL).search));
 
       this.wsConfig.updateWs({
         connectUrl: URL,
@@ -146,8 +146,8 @@ export class WSClient {
     let wsInstance;
 
     try {
-      const { agent } = this;
-      wsInstance = new WebSocket(connectUrl, { agent });
+      // Note: Deno's WebSocket doesn't support agent option
+      wsInstance = new WebSocket(connectUrl);
     } catch(e) {
       this.logger.error('[ws]', 'new WebSocket error');
     }
@@ -157,16 +157,20 @@ export class WSClient {
     }
 
     return new Promise((resolve) => {
-      wsInstance.on('open', () => {
+      const onOpen = () => {
         this.logger.debug('[ws]', 'ws connect success');
         this.wsConfig.setWSInstance(wsInstance);
         this.pingLoop();
         resolve(true);
-      });
-      wsInstance.on('error', () => {
-        this.logger.error('[ws]', 'ws connect failed')
+      };
+
+      const onError = () => {
+        this.logger.error('[ws]', 'ws connect failed');
         resolve(false);
-      });
+      };
+
+      wsInstance.addEventListener('open', onOpen);
+      wsInstance.addEventListener('error', onError);
     });
 
   }
@@ -200,7 +204,7 @@ export class WSClient {
 
     if (isStart) {
       if (wsInstance) {
-        wsInstance?.terminate();
+        wsInstance?.close();
       }
       if (this.reconnectInterval) {
         clearTimeout(this.reconnectInterval);
@@ -228,7 +232,7 @@ export class WSClient {
     this.logger.info('[ws]', 'reconnect');
 
     if (wsInstance) {
-      wsInstance?.terminate();
+      wsInstance?.close();
     }
 
     this.wsConfig.setWSInstance(null);
@@ -289,7 +293,8 @@ export class WSClient {
   private communicate() {
     const wsInstance = this.wsConfig.getWSInstance();
 
-    wsInstance?.on('message', async (buffer: Uint8Array) => {
+    wsInstance?.addEventListener('message', async (event: MessageEvent) => {
+      const buffer = new Uint8Array(await (event.data as Blob).arrayBuffer());
       const data = protoBuf.decode(buffer);
       const { method } = data;
 
@@ -302,11 +307,11 @@ export class WSClient {
       }
     });
 
-    wsInstance?.on('error', (e) => {
+    wsInstance?.addEventListener('error', (e) => {
       this.logger.error('[ws]', 'ws error');
     });
 
-    wsInstance?.on('close', () => {
+    wsInstance?.addEventListener('close', () => {
       this.logger.debug('[ws]', 'client closed');
       this.reConnect();
     });
@@ -395,11 +400,11 @@ export class WSClient {
     const wsInstance = this.wsConfig.getWSInstance();
     if (wsInstance?.readyState === WebSocket.OPEN) {
       const resp = pbbp2.Frame.encode(data).finish();
-      this.wsConfig.getWSInstance()?.send(resp,(err) => {
-        if (err) {
-          this.logger.error('[ws]', 'send data failed');
-        }
-      });
+      try {
+        wsInstance.send(resp);
+      } catch (err) {
+        this.logger.error('[ws]', 'send data failed');
+      }
     }
   }
 

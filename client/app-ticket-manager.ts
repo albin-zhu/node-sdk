@@ -1,6 +1,5 @@
-import { Cache, Logger, AppType } from '@node-sdk/typings';
-import { CAppTicket } from '@node-sdk/consts';
-import { HttpInstance } from '@node-sdk/typings/http';
+import { Cache, Logger, AppType, HttpInstance } from './typings.ts';
+import { CAppTicket } from './consts.ts';
 
 export interface IParams {
     appId: string;
